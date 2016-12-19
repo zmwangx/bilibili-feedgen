@@ -1,4 +1,4 @@
-|Latest Version| |Supported Python Versions| |License|
+|Latest Version| |Supported Python Versions| |License| |Build Status|
 
 ``bilibili-feedgen`` generates an Atom feed for videos uploaded by a Bilibili user.
 
@@ -55,3 +55,5 @@ See Also
 .. |Supported Python Versions| image:: https://img.shields.io/badge/python-3.6-blue.svg?maxAge=2592000
 .. |License| image:: https://img.shields.io/badge/license-WTFPL-blue.svg?maxAge=2592000
    :target: COPYING
+.. |Build Status| image:: https://travis-ci.org/zmwangx/bilibili-feedgen.svg?branch=master
+   :target: https://travis-ci.org/zmwangx/bilibili-feedgen
