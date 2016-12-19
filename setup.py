@@ -34,6 +34,7 @@ setuptools.setup(
     ],
     packages=['bilibili_feedgen'],
     install_requires=['arrow', 'feedgen', 'requests'],
+    tests_require=['pytest'],
     entry_points={'console_scripts': [
         'bilibili-feedgen=bilibili_feedgen.generator:main',
     ]},
