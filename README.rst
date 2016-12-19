@@ -34,11 +34,6 @@ Notes
 - ``bilibili-feedgen`` taps into Bilibili's private API to retrieve
   video listings. As such, it might break at any time.
 
-Roadmap
--------
-
-- Implement a daemon mode so that a cron job is no longer needed.
-
 License
 -------
 
