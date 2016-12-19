@@ -40,6 +40,7 @@ def gen(feed_url: str, member_id: str, data: APIData, output_file: str = None) -
     fg = feedgen.feed.FeedGenerator()
     fg.id(feed_url)
     fg.title(f"{user}'s Bilibili feed")
+    fg.author({'name': user})
     fg.link(href=feed_url, rel='self', type='application/atom+xml')
     fg.link(href=f'http://space.bilibili.com/{member_id}', rel='alternate', type='text/html')
 
