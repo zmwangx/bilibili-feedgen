@@ -1,5 +1,4 @@
 import argparse
-import sys
 import textwrap
 import urllib.parse
 from typing import Any, Dict, List
@@ -8,16 +7,10 @@ import arrow
 import feedgen.feed
 import requests
 
-from .version import __version__
+from .options import getparser
 
 # Types
 APIData = List[Dict[str, Any]]
-
-class BetterArgumentParser(argparse.ArgumentParser):
-    def error(self, message: str) -> None:
-        print('error: %s\n' % message, file=sys.stderr)
-        self.print_help()
-        sys.exit(2)
 
 # Returns a list of dicts with the following keys (and more):
 # - aid (video url is http://www.bilibili.com/video/av{aid}/)
@@ -76,21 +69,14 @@ def gen(feed_url: str, member_id: str, data: APIData, output_file: str = None) -
     else:
         print(atom, end='')
 
-def main():
-    parser = BetterArgumentParser(description='Bilibili user feed generator.')
-    parser.add_argument('member_id',
-                        help='the id following space.bilibili.com/, e.g., 1315101')
-    parser.add_argument('-c', '--count', default=30,
-                        help='number of latest videos to include (default is 30)')
-    parser.add_argument('-o', '--output-file',
-                        help='write feed to file rather than print to stdout')
-    parser.add_argument('-u', '--feed-url', default='http://0.0.0.0:8000/atom.xml',
-                        help='url where the feed will be served at')
-    parser.add_argument('-V', '--version', action='version', version=__version__)
-    args = parser.parse_args()
-    member_id = args.member_id
-    count = args.count
-    output_file = args.output_file
-    feed_url = args.feed_url
-
+def fetch_and_gen(options: argparse.Namespace) -> None:
+    member_id = options.member_id
+    count = options.count
+    output_file = options.output_file
+    feed_url = options.feed_url
     gen(feed_url, member_id, fetch(member_id, pagesize=count), output_file=output_file)
+
+def main():
+    parser = getparser()
+    options = parser.parse_args()
+    fetch_and_gen(options)
