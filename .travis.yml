@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.6-dev"
+addons:
+  apt:
+    packages:
+      - libxml2-utils
+install:
+  - pip install tox
+script:
+  - tox
+after_failure:
+  - ./ci/after_failure.sh
