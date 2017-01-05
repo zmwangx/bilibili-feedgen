@@ -1,3 +1,3 @@
 arrow
-feedgen
+feedgen >= 0.4.1
 requests
