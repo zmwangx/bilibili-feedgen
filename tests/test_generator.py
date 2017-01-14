@@ -17,6 +17,7 @@ class TestGenerator:
             options = argparse.Namespace(
                 member_id='1315101',
                 count=5,
+                queries=[],
                 output_file=output_file,
                 feed_url='http://0.0.0.0:8000/atom.xml',
             )
