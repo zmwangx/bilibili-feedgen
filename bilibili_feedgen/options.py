@@ -11,13 +11,21 @@ class BetterArgumentParser(argparse.ArgumentParser):
 
 def getparser() -> BetterArgumentParser:
     parser = BetterArgumentParser(description='Bilibili user feed generator.')
-    parser.add_argument('member_id',
-                        help='the id following space.bilibili.com/, e.g., 1315101')
-    parser.add_argument('-c', '--count', default=30,
-                        help='number of latest videos to include (default is 30)')
-    parser.add_argument('-o', '--output-file',
-                        help='write feed to file rather than print to stdout')
-    parser.add_argument('-u', '--feed-url', default='http://0.0.0.0:8000/atom.xml',
-                        help='url where the feed will be served at')
-    parser.add_argument('-V', '--version', action='version', version=__version__)
+    add = parser.add_argument
+    add('member_id',
+        help='the id following space.bilibili.com/, e.g., 1315101')
+    add('-c', '--count', default=30,
+        help='number of latest videos to include (default is 30)')
+    add('-f', '--filter', action='append', dest='queries', metavar='FILTER',
+        help='''a filter is a space-delimited string containing one or
+        more keywords, and an entry passes the filter only if it
+        contains all the keywords (simple case-sensitive containment
+        test); this option can be specified multiple times, and an entry
+        only needs to pass one of the filters to appear; note that
+        --count takes effect before filters are applied''')
+    add('-o', '--output-file',
+        help='write feed to file rather than print to stdout')
+    add('-u', '--feed-url', default='http://0.0.0.0:8000/atom.xml',
+        help='url where the feed will be served at')
+    add('-V', '--version', action='version', version=__version__)
     return parser

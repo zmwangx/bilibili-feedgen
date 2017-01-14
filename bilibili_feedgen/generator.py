@@ -11,6 +11,7 @@ from .options import getparser
 
 # Types
 APIData = List[Dict[str, Any]]
+Query = List[str]
 
 # Returns a list of dicts with the following keys (and more):
 # - aid (video url is http://www.bilibili.com/video/av{aid}/)
@@ -31,7 +32,8 @@ def fetch(member_id: str, pagesize: int = 30) -> APIData:
     assert r.status_code == 200
     return r.json()['data']['vlist']
 
-def gen(feed_url: str, member_id: str, data: APIData, output_file: str = None) -> None:
+def gen(feed_url: str, member_id: str, data: APIData,
+        queries: List[Query] = None, output_file: str = None) -> None:
     if data:
         user = data[0]['author']
     else:
@@ -52,6 +54,19 @@ def gen(feed_url: str, member_id: str, data: APIData, output_file: str = None) -
         description = video['description']
         length = video['length']
         url = f'http://www.bilibili.com/video/av{aid}/'
+
+        if queries is not None:
+            for query in queries:
+                for keyword in query:
+                    if keyword not in title and keyword not in description:
+                        # Doesn't match this keyword, quit this query
+                        break
+                else:
+                    # Matches all keywords in this query
+                    break
+            else:
+                # Doesn't match any of the queries
+                continue
 
         fe = fg.add_entry()
         fe.id(url)
@@ -75,9 +90,13 @@ def fetch_and_gen(options: argparse.Namespace) -> None:
     count = options.count
     output_file = options.output_file
     feed_url = options.feed_url
-    gen(feed_url, member_id, fetch(member_id, pagesize=count), output_file=output_file)
+    queries = options.queries
+    gen(feed_url, member_id, fetch(member_id, pagesize=count),
+        queries=queries, output_file=output_file)
 
 def main():
     parser = getparser()
     options = parser.parse_args()
+    options.queries = (None if not options.queries else
+                       [filter_string.split() for filter_string in options.queries])
     fetch_and_gen(options)
