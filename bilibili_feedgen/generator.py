@@ -1,4 +1,6 @@
 import argparse
+import logging
+import sys
 import textwrap
 import urllib.parse
 from typing import Any, Dict, List
@@ -8,6 +10,11 @@ import feedgen.feed
 import requests
 
 from .options import getparser
+
+logging.basicConfig(
+    format='[%(levelname)s] %(name)s: %(message)s',
+)
+logger = logging.getLogger('bilibili-feedgen')
 
 # Types
 APIData = List[Dict[str, Any]]
@@ -30,7 +37,10 @@ def fetch(member_id: str, pagesize: int = 30) -> APIData:
                urllib.parse.urlencode(query))
     r = requests.get(api_url)
     assert r.status_code == 200
-    return r.json()['data']['vlist']
+    try:
+        return r.json()['data']['vlist']
+    except (TypeError, KeyError):
+        return []
 
 def gen(feed_url: str, member_id: str, data: APIData,
         queries: List[Query] = None, output_file: str = None) -> None:
@@ -85,18 +95,23 @@ def gen(feed_url: str, member_id: str, data: APIData,
     else:
         print(atom, end='')
 
-def fetch_and_gen(options: argparse.Namespace) -> None:
+# Returns True if successful, or False otherwise
+def fetch_and_gen(options: argparse.Namespace, no_empty: bool = True) -> bool:
     member_id = options.member_id
     count = options.count
     output_file = options.output_file
     feed_url = options.feed_url
     queries = options.queries
-    gen(feed_url, member_id, fetch(member_id, pagesize=count),
-        queries=queries, output_file=output_file)
+    data = fetch(member_id, pagesize=count)
+    if not data and no_empty:
+        logger.error('API response does not contain data')
+        return False
+    gen(feed_url, member_id, data, queries=queries, output_file=output_file)
+    return True
 
 def main():
     parser = getparser()
     options = parser.parse_args()
     options.queries = (None if not options.queries else
                        [filter_string.split() for filter_string in options.queries])
-    fetch_and_gen(options)
+    sys.exit(0 if fetch_and_gen(options) else 1)
