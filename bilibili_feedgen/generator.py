@@ -56,10 +56,11 @@ def gen(feed_url: str, member_id: str, data: APIData,
     fg.link(href=feed_url, rel='self', type='application/atom+xml')
     fg.link(href=f'http://space.bilibili.com/{member_id}', rel='alternate', type='text/html')
 
+    created_last = arrow.get(-1).datetime
     for video in data:
         aid = video['aid']
         title = video['title']
-        created = video['created']
+        created = arrow.get(video['created']).datetime
         pic = video['pic']
         description = video['description']
         length = video['length']
@@ -82,11 +83,20 @@ def gen(feed_url: str, member_id: str, data: APIData,
         fe.id(url)
         fe.link(href=url, rel='alternate', type='text/html')
         fe.title(title)
-        fe.published(arrow.get(created).datetime)
+        fe.published(created)
+        fe.updated(created)
         fe.content(textwrap.dedent(f"""\
         <p><img src="{pic}"/></p>
         <p>Length: {length}</p>
         <p>{description}</p>"""), type='html')
+
+        if created > created_last:
+            created_last = created
+
+    if created_last.timestamp() < 0:
+        fg.updated(arrow.utcnow().datetime)
+    else:
+        fg.updated(created_last)
 
     atom = fg.atom_str(pretty=True).decode('utf-8')
     if output_file:
