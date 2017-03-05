@@ -19,6 +19,7 @@ class TestGenerator:
                 count=5,
                 queries=[],
                 output_file=output_file,
+                force_write=False,
                 feed_url='http://0.0.0.0:8000/atom.xml',
             )
             fetch_and_gen(options)
