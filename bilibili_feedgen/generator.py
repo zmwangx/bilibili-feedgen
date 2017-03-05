@@ -43,7 +43,8 @@ def fetch(member_id: str, pagesize: int = 30) -> APIData:
         return []
 
 def gen(feed_url: str, member_id: str, data: APIData,
-        queries: List[Query] = None, output_file: str = None) -> None:
+        queries: List[Query] = None, output_file: str = None,
+        only_write_on_change: bool = True) -> None:
     if data:
         user = data[0]['author']
     else:
@@ -100,6 +101,14 @@ def gen(feed_url: str, member_id: str, data: APIData,
 
     atom = fg.atom_str(pretty=True).decode('utf-8')
     if output_file:
+        if only_write_on_change:
+            try:
+                with open(output_file, 'r', encoding='utf-8') as fp:
+                    old_atom = fp.read()
+                    if old_atom == atom:
+                        return
+            except OSError:
+                pass
         with open(output_file, 'w', encoding='utf-8') as fp:
             fp.write(atom)
     else:
@@ -110,13 +119,15 @@ def fetch_and_gen(options: argparse.Namespace, no_empty: bool = True) -> bool:
     member_id = options.member_id
     count = options.count
     output_file = options.output_file
+    force_write = options.force_write
     feed_url = options.feed_url
     queries = options.queries
     data = fetch(member_id, pagesize=count)
     if not data and no_empty:
         logger.error('API response does not contain data')
         return False
-    gen(feed_url, member_id, data, queries=queries, output_file=output_file)
+    gen(feed_url, member_id, data, queries=queries, output_file=output_file,
+        only_write_on_change=not force_write)
     return True
 
 def main():

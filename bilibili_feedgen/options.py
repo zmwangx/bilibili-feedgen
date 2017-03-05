@@ -25,6 +25,10 @@ def getparser() -> BetterArgumentParser:
         --count takes effect before filters are applied''')
     add('-o', '--output-file',
         help='write feed to file rather than print to stdout')
+    add('--force-write', action='store_true',
+        help='''force writing to output file; by default, if writing to
+        file, do not actually overwrite it if feed content is
+        unchanged''')
     add('-u', '--feed-url', default='http://0.0.0.0:8000/atom.xml',
         help='url where the feed will be served at')
     add('-V', '--version', action='version', version=__version__)
