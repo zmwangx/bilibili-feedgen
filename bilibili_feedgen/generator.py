@@ -49,7 +49,7 @@ def fetch(member_id: str, pagesize: int = 30) -> APIData:
         'mid': member_id,
         'pagesize': pagesize,
     }
-    api_url = ('http://space.bilibili.com/ajax/member/getSubmitVideos?%s' %
+    api_url = ('https://space.bilibili.com/ajax/member/getSubmitVideos?%s' %
                urllib.parse.urlencode(query))
     r = session.get(api_url)
     assert r.status_code == 200
