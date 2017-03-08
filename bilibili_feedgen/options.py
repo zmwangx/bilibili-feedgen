@@ -14,6 +14,9 @@ def getparser() -> BetterArgumentParser:
     add = parser.add_argument
     add('member_id',
         help='the id following space.bilibili.com/, e.g., 1315101')
+    add('-n', '--name', default=None,
+        help='''display name of the user; without this an extra request
+        is made to retrieve the user's display name''')
     add('-c', '--count', default=30,
         help='number of latest videos to include (default is 30)')
     add('-f', '--filter', action='append', dest='queries', metavar='FILTER',

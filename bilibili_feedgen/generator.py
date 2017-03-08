@@ -20,6 +20,22 @@ logger = logging.getLogger('bilibili-feedgen')
 APIData = List[Dict[str, Any]]
 Query = List[str]
 
+# requests session
+import os
+session = requests.Session()
+session.headers.update({'Referer': 'https://space.bilibili.com/'})
+
+def get_member_name(member_id: str) -> str:
+    payload = {
+        'mid': member_id,
+    }
+    api_url = 'https://space.bilibili.com/ajax/member/GetInfo'
+    r = session.post(api_url, data=payload)
+    assert r.status_code == 200
+    data = r.json()['data']
+    assert data['mid'] == member_id
+    return data['name']
+
 # Returns a list of dicts with the following keys (and more):
 # - aid (video url is http://www.bilibili.com/video/av{aid}/)
 # - title
@@ -35,25 +51,23 @@ def fetch(member_id: str, pagesize: int = 30) -> APIData:
     }
     api_url = ('http://space.bilibili.com/ajax/member/getSubmitVideos?%s' %
                urllib.parse.urlencode(query))
-    r = requests.get(api_url)
+    r = session.get(api_url)
     assert r.status_code == 200
     try:
         return r.json()['data']['vlist']
     except (TypeError, KeyError):
         return []
 
-def gen(feed_url: str, member_id: str, data: APIData,
+def gen(feed_url: str, member_id: str, data: APIData, name : str = None,
         queries: List[Query] = None, output_file: str = None,
         only_write_on_change: bool = True) -> None:
-    if data:
-        user = data[0]['author']
-    else:
-        user = f'User {member_id}'
+    if not name:
+        name = get_member_name(member_id)
 
     fg = feedgen.feed.FeedGenerator()
     fg.id(feed_url)
-    fg.title(f"{user}'s Bilibili feed")
-    fg.author({'name': user, 'uri': f'http://space.bilibili.com/{member_id}/'})
+    fg.title(f"{name}'s Bilibili feed")
+    fg.author({'name': name, 'uri': f'http://space.bilibili.com/{member_id}/'})
     fg.link(href=feed_url, rel='self', type='application/atom+xml')
     fg.link(href=f'http://space.bilibili.com/{member_id}', rel='alternate', type='text/html')
 
@@ -117,6 +131,7 @@ def gen(feed_url: str, member_id: str, data: APIData,
 # Returns True if successful, or False otherwise
 def fetch_and_gen(options: argparse.Namespace, no_empty: bool = True) -> bool:
     member_id = options.member_id
+    name = options.name
     count = options.count
     output_file = options.output_file
     force_write = options.force_write
@@ -126,7 +141,7 @@ def fetch_and_gen(options: argparse.Namespace, no_empty: bool = True) -> bool:
     if not data and no_empty:
         logger.error('API response does not contain data')
         return False
-    gen(feed_url, member_id, data, queries=queries, output_file=output_file,
+    gen(feed_url, member_id, data, name=name, queries=queries, output_file=output_file,
         only_write_on_change=not force_write)
     return True
 

@@ -16,6 +16,7 @@ class TestGenerator:
             os.close(fd)
             options = argparse.Namespace(
                 member_id='1315101',
+                name=None,
                 count=5,
                 queries=[],
                 output_file=output_file,
