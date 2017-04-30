@@ -81,7 +81,7 @@ def gen(feed_url: str, member_id: str, data: APIData, name : str = None,
         length = video['length']
         url = 'http://www.bilibili.com/video/av%s/' % aid
 
-        if queries is not None:
+        if queries:
             for query in queries:
                 for keyword in query:
                     if keyword not in title and keyword not in description:
