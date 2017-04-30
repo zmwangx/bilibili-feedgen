@@ -66,10 +66,10 @@ def gen(feed_url: str, member_id: str, data: APIData, name : str = None,
 
     fg = feedgen.feed.FeedGenerator()
     fg.id(feed_url)
-    fg.title(f"{name}'s Bilibili feed")
-    fg.author({'name': name, 'uri': f'http://space.bilibili.com/{member_id}/'})
+    fg.title("%s's Bilibili feed" % name)
+    fg.author({'name': name, 'uri': 'http://space.bilibili.com/%s/' % member_id})
     fg.link(href=feed_url, rel='self', type='application/atom+xml')
-    fg.link(href=f'http://space.bilibili.com/{member_id}', rel='alternate', type='text/html')
+    fg.link(href='http://space.bilibili.com/%s' % member_id, rel='alternate', type='text/html')
 
     created_last = arrow.get(-1).datetime
     for video in data:
@@ -79,7 +79,7 @@ def gen(feed_url: str, member_id: str, data: APIData, name : str = None,
         pic = video['pic']
         description = video['description']
         length = video['length']
-        url = f'http://www.bilibili.com/video/av{aid}/'
+        url = 'http://www.bilibili.com/video/av%s/' % aid
 
         if queries is not None:
             for query in queries:
@@ -100,10 +100,14 @@ def gen(feed_url: str, member_id: str, data: APIData, name : str = None,
         fe.title(title)
         fe.published(created)
         fe.updated(created)
-        fe.content(textwrap.dedent(f"""\
+        fe.content(textwrap.dedent("""\
         <p><img src="{pic}"/></p>
         <p>Length: {length}</p>
-        <p>{description}</p>"""), type='html')
+        <p>{description}</p>""".format(
+            pic=pic,
+            length=length,
+            description=description
+        )), type='html')
 
         if created > created_last:
             created_last = created

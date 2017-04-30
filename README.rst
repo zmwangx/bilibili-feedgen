@@ -7,7 +7,7 @@
 Installation
 ------------
 
-Python 3.6 or later is required (due to `PEP 498 <https://docs.python.org/3.6/whatsnew/3.6.html#whatsnew36-pep498>`_). To install, run ::
+Python 3 required (tested on Python 3.5 or later). To install, run ::
 
   ./setup.py install
 

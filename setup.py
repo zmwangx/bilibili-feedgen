@@ -5,9 +5,6 @@ import sys
 
 import setuptools
 
-if sys.version_info < (3, 6):
-    sys.exit('Error: bilibili-feedgen requires Python 3.6 or later.')
-
 here = os.path.dirname(os.path.realpath(__file__))
 versionfile = os.path.join(here, 'bilibili_feedgen', 'version.py')
 
